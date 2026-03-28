@@ -19,3 +19,16 @@ class Admin extends Person{
         this.adminPassword = adminPassword;
     }
 }
+class Donor extends Person{
+    private int age;
+    private String bloodGroup;
+    private String status;
+    private String city;
+    Donor(String firstName,String lastName,String fatherName,String contact,int age,String bloodGroup,String city,String status){
+    super(String firstName,String lastName,String fatherName,String contact);
+    this.age = age;
+    this.status = status;
+    this.bloodGroup = bloodGroup;
+    this.city = city;
+    }
+}
