@@ -25,10 +25,22 @@ class Donor extends Person{
     private String status;
     private String city;
     Donor(String firstName,String lastName,String fatherName,String contact,int age,String bloodGroup,String city,String status){
-    super(String firstName,String lastName,String fatherName,String contact);
+    super(firstName,lastName,fatherName,contact);
     this.age = age;
     this.status = status;
     this.bloodGroup = bloodGroup;
     this.city = city;
     }
+    void info(){
+        System.out.print(firstName+lastName+fatherName+contact+age+bloodGroup+city+status);
+    }
+}
+
+class Main{
+    static void main(String[] args) {
+        Donor donor = new Donor("kamran","gul","ameen","030044545",20,"B+","Hangu","emergency");
+        
+    
+    donor.info();
+}
 }
