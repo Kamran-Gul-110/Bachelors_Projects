@@ -1,3 +1,8 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+
 class Person{
     String firstName;
     String lastName;
@@ -32,9 +37,17 @@ class Donor extends Person{
     this.city = city;
     }
 }
+class Connect{
+    Connection connection;
+    Statement statement;
+    void getConnection() throws Exception{
+        connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/?user=root","root","Kami@123");
+        statement = connection.createStatement();
+    }
 
+}
 class Main{
-    static void main(String[] args) {
+    public static void main(String[] args) {
         Donor donor = new Donor("kamran","gul","ameen","030044545",20,"B+","Hangu","emergency");
 }
 }
