@@ -1,7 +1,5 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 
 class Person{
     String name;
@@ -36,17 +34,17 @@ class Donor extends Person{
     }
 }
 class Connect{
-    Connection connection;
-    Statement statement;
-    void getConnection() throws Exception{
-        connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/?user=root","root","Kami@123");
-        statement = connection.createStatement();
+    public void getConnection() throws Exception {
+        String url = "jdbc:mysql://localhost:3306/blood_bank_db";
+        String user = "root";
+        String pass = "Kami@123";
+        Connection connection= DriverManager.getConnection(url, user, pass);
     }
-
+    
 }
 class Main{
     public static void main(String[] args) {
-
         Donor donor = new Donor("kamran gul","ameen","030044545",20,"B+","Hangu","emergency");
+
 }
 }
