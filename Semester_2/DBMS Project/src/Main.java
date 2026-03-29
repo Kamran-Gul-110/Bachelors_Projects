@@ -1,8 +1,8 @@
 class Person{
-    private String firstName;
-    private String lastName;
-    private String fatherName;
-    private String contact;
+    String firstName;
+    String lastName;
+    String fatherName;
+    String contact;
     Person(String firstName,String lastName,String fatherName,String contact){
         this.firstName = firstName;
         this.lastName = lastName;
@@ -20,10 +20,10 @@ class Admin extends Person{
     }
 }
 class Donor extends Person{
-    private int age;
-    private String bloodGroup;
-    private String status;
-    private String city;
+    int age;
+    String bloodGroup;
+    String status;
+    String city;
     Donor(String firstName,String lastName,String fatherName,String contact,int age,String bloodGroup,String city,String status){
     super(firstName,lastName,fatherName,contact);
     this.age = age;
@@ -31,16 +31,10 @@ class Donor extends Person{
     this.bloodGroup = bloodGroup;
     this.city = city;
     }
-    void info(){
-        System.out.print(firstName+lastName+fatherName+contact+age+bloodGroup+city+status);
-    }
 }
 
 class Main{
     static void main(String[] args) {
         Donor donor = new Donor("kamran","gul","ameen","030044545",20,"B+","Hangu","emergency");
-        
-    
-    donor.info();
 }
 }
