@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Scanner;
 
 class Person{
@@ -43,7 +44,7 @@ class Connect{
     }
     void addDonor(Donor donor) throws Exception{
         getConnection();
-        String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?,?)";
+        String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1,donor.name);
         preparedStatement.setString(2,donor.fatherName);
@@ -65,7 +66,7 @@ class Connect{
     preparedStatement.setString(1, name);
     preparedStatement.setString(2, fatherName);
 
-    java.sql.ResultSet rs = preparedStatement.executeQuery();
+    ResultSet rs = preparedStatement.executeQuery();
     if (rs.next()) {
         id = rs.getInt("donor_id");
     }
@@ -77,11 +78,27 @@ class Connect{
 
     void recordDonation(int donorId,int units) throws Exception{
         getConnection();
+        String bloodGroup = "";
         String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1,donorId);
         preparedStatement.setInt(2,units);
         preparedStatement.executeUpdate();
+
+        String query2 = "SELECT blood_group FROM donors WHERE donor_id = ?";
+
+        PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
+        preparedStatement2.setInt(1, donorId);
+
+        ResultSet rs = preparedStatement2.executeQuery();
+        if (rs.next()) {
+            bloodGroup = rs.getString("blood_group");
+        }
+        String query3 = "UPDATE blood_stock set total_units = total_units+? where blood_group = ?";
+        PreparedStatement preparedStatement3 = connection.prepareStatement(query3);
+        preparedStatement3.setInt(1,units);
+        preparedStatement3.setString(2,bloodGroup);
+        preparedStatement3.executeUpdate();
         System.out.println("Donation recorded");
         connection.close();
     }
@@ -95,7 +112,8 @@ class Main{
         System.out.println("Blood Bank Menu");
         System.out.println("==================");
         System.out.println("1. Add Donor");
-        System.out.println("2. Record Donation");
+        System.out.println("2. Search Donor Id");
+        System.out.println("3. Record Dontaion");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
