@@ -55,6 +55,26 @@ class Connect{
         System.out.println("donor added");
         connection.close();
     }
+//    Method 2
+    int getDonorId(String name, String fatherName) throws Exception {
+    getConnection();
+    int id = -1; // -1 means "Not Found"
+    String query = "SELECT donor_id FROM donors WHERE name = ? AND father_name = ?";
+
+    PreparedStatement preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, name);
+    preparedStatement.setString(2, fatherName);
+
+    java.sql.ResultSet rs = preparedStatement.executeQuery();
+    if (rs.next()) {
+        id = rs.getInt("donor_id");
+    }
+
+    connection.close();
+    return id;
+}
+//    Method 3
+
     void recordDonation(int donorId,int units) throws Exception{
         getConnection();
         String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
@@ -98,6 +118,20 @@ class Main{
                 connect.addDonor(donor);
                 break;
             case 2:
+                System.out.print("Enter Donor Name: ");
+                String sName = scan.nextLine();
+                System.out.print("Enter Father's Name: ");
+                String sFather = scan.nextLine();
+
+                int foundId = connect.getDonorId(sName, sFather);
+
+                if (foundId != -1) {
+                    System.out.println("ID Found: " + foundId);
+                } else {
+                    System.out.println("[Error] Donor not found in registry.");
+                }
+                break;
+            case 3:
                 System.out.print("Enter Donor id: ");
                 int donorId = scan.nextInt();
                 System.out.print("Enter units donated: ");
