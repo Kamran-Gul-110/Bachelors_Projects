@@ -70,7 +70,6 @@ class Connect{
     if (rs.next()) {
         id = rs.getInt("donor_id");
     }
-
     connection.close();
     return id;
 }
@@ -79,26 +78,37 @@ class Connect{
     void recordDonation(int donorId,int units) throws Exception{
         getConnection();
         String bloodGroup = "";
+
+//      The query will insert the units donated into the donations table
         String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1,donorId);
         preparedStatement.setInt(2,units);
         preparedStatement.executeUpdate();
 
+//        The query2 will find the blood group of that donor later used to insert the stock in that group
         String query2 = "SELECT blood_group FROM donors WHERE donor_id = ?";
-
         PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
         preparedStatement2.setInt(1, donorId);
-
         ResultSet rs = preparedStatement2.executeQuery();
         if (rs.next()) {
             bloodGroup = rs.getString("blood_group");
         }
+
+//        The query3 is actually inserting the units in blood_stock
         String query3 = "UPDATE blood_stock set total_units = total_units+? where blood_group = ?";
         PreparedStatement preparedStatement3 = connection.prepareStatement(query3);
         preparedStatement3.setInt(1,units);
         preparedStatement3.setString(2,bloodGroup);
         preparedStatement3.executeUpdate();
+
+
+//        As the donor has donated so query4 will change the status of donor to instant
+        String query4 = "UPDATE donors set status = 'instant' where donor_id = ?";
+        PreparedStatement preparedStatement4 = connection.prepareStatement(query4);
+        preparedStatement4.setInt(1,donorId);
+        preparedStatement4.executeUpdate();
+
         System.out.println("Donation recorded");
         connection.close();
     }
@@ -152,7 +162,7 @@ class Main{
             case 3:
                 System.out.print("Enter Donor id: ");
                 int donorId = scan.nextInt();
-                System.out.print("Enter units donated: ");
+                System.out.print("Units donated: ");
                 int units = scan.nextInt();
                 connect.recordDonation(donorId,units);
                 break;
