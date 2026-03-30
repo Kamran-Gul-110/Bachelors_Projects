@@ -112,6 +112,18 @@ class Connect{
         System.out.println("Donation recorded");
         connection.close();
     }
+    void showHistory(int donorId) throws Exception{
+        getConnection();
+        String query = "Select * from donations where donor_id=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1,donorId);
+        ResultSet rs = preparedStatement.executeQuery();
+        while(rs.next()){
+            System.out.print("Units donated: " + rs.getInt("units_donated") +"   ");
+            System.out.println("Date: " + rs.getDate("donation_date"));
+        }
+        connection.close();
+    }
 
 }
 class Main{
@@ -124,6 +136,7 @@ class Main{
         System.out.println("1. Add Donor");
         System.out.println("2. Search Donor Id");
         System.out.println("3. Record Dontaion");
+        System.out.println("4. Show History of a Donor");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -166,7 +179,12 @@ class Main{
                 int units = scan.nextInt();
                 connect.recordDonation(donorId,units);
                 break;
+            case 4:
+                System.out.print("Enter donor id: ");
+                donorId = scan.nextInt();
+                connect.showHistory(donorId);
         }
+
 
 }
 }
