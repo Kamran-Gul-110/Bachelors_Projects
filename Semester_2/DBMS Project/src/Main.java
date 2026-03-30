@@ -114,13 +114,18 @@ class Connect{
     }
     void showHistory(int donorId) throws Exception{
         getConnection();
+        boolean found = false;
         String query = "Select * from donations where donor_id=?";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setInt(1,donorId);
         ResultSet rs = preparedStatement.executeQuery();
         while(rs.next()){
+            found = true;
             System.out.print("Units donated: " + rs.getInt("units_donated") +"   ");
             System.out.println("Date: " + rs.getDate("donation_date"));
+        }
+        if(!found){
+            System.out.println("No donation from this donor yet...");
         }
         connection.close();
     }
@@ -168,6 +173,15 @@ class Main{
 
                 if (foundId != -1) {
                     System.out.println("ID Found: " + foundId);
+                    System.out.println("Record donation now? (y/n)");
+                    choice =scan.next().charAt(0);
+                    if(choice=='y' || choice=='Y'){
+                        System.out.print("Enter Donor id: ");
+                        int donorId = scan.nextInt();
+                        System.out.print("Units donated: ");
+                        int units = scan.nextInt();
+                        connect.recordDonation(donorId,units);
+                    }
                 } else {
                     System.out.println("[Error] Donor not found in registry.");
                 }
