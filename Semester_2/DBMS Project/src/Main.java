@@ -43,7 +43,7 @@ class Connect{
     }
     void addDonor(Donor donor) throws Exception{
         getConnection();
-        String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
+        String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1,donor.name);
         preparedStatement.setString(2,donor.fatherName);
@@ -53,6 +53,17 @@ class Connect{
         preparedStatement.executeUpdate();
 
         System.out.println("donor added");
+        connection.close();
+    }
+    void recordDonation(int donorId,int units) throws Exception{
+        getConnection();
+        String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1,donorId);
+        preparedStatement.setInt(2,units);
+        preparedStatement.executeUpdate();
+        System.out.println("Donation recorded");
+        connection.close();
     }
 
 }
@@ -61,10 +72,14 @@ class Main{
         Connect connect = new Connect();
         String name,fatherName,contact;
         Scanner scan = new Scanner(System.in);
+        System.out.println("Blood Bank Menu");
+        System.out.println("==================");
+        System.out.println("1. Add Donor");
+        System.out.println("2. Record Donation");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
-        switch(choice) {
+        switch(choice){
             case 1:
                 System.out.print("Donor name: ");
                 name = scan.nextLine();
@@ -81,6 +96,15 @@ class Main{
                 String city = scan.nextLine();
                 Donor donor = new Donor(name,fatherName,contact,age,bloodGroup,city);
                 connect.addDonor(donor);
+                break;
+            case 2:
+                System.out.print("Enter Donor id: ");
+                int donorId = scan.nextInt();
+                System.out.print("Enter units donated: ");
+                int units = scan.nextInt();
+                connect.recordDonation(donorId,units);
+                break;
         }
+
 }
 }
