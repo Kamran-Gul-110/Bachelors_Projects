@@ -129,6 +129,29 @@ class Connect{
         }
         connection.close();
     }
+    void manageStock(String bloodGroup,int units,char choice) throws Exception{
+        getConnection();
+        PreparedStatement preparedStatement;
+        String query;
+        if(choice=='a' || choice=='A'){
+            query = "UPDATE blood_stock set total_units = total_units+? where blood_group=?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,units);
+            preparedStatement.setString(2,bloodGroup);
+            preparedStatement.executeUpdate();
+            System.out.println("Blood added to stock");
+        }
+        else{
+            query = "UPDATE blood_stock set total_units = total_units-? where blood_group=?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1,units);
+            preparedStatement.setString(2,bloodGroup);
+            preparedStatement.executeUpdate();
+            System.out.println("Blood removed from stock");
+        }
+
+        connection.close();
+    }
 
 }
 class Main{
@@ -142,6 +165,7 @@ class Main{
         System.out.println("2. Search Donor Id");
         System.out.println("3. Record Dontaion");
         System.out.println("4. Show History of a Donor");
+        System.out.println("5. Manage Blood Bank Stock");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -197,8 +221,16 @@ class Main{
                 System.out.print("Enter donor id: ");
                 donorId = scan.nextInt();
                 connect.showHistory(donorId);
+                break;
+            case 5:
+                System.out.print("Add to stock or remove: (a/r)");
+                char ch = scan.next().charAt(0);
+                System.out.print("Enter blood group: ");
+                bloodGroup = scan.next();
+                System.out.print("Enter units of blood: ");
+                units = scan.nextInt();
+                connect.manageStock(bloodGroup,units,ch);
         }
-
 
 }
 }
