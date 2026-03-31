@@ -42,6 +42,7 @@ class Connect{
         String pass = "Kami@123";
         connection= DriverManager.getConnection(url, user, pass);
     }
+//    Method 1
     void addDonor(Donor donor) throws Exception{
         getConnection();
         String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
@@ -73,7 +74,6 @@ class Connect{
     return id;
 }
 //    Method 3
-
     void recordDonation(int donorId,int units) throws Exception{
         getConnection();
         String bloodGroup = "";
@@ -111,7 +111,6 @@ class Connect{
         System.out.println("Donation recorded");
         connection.close();
     }
-
 //    Method 4
     void showHistory(int donorId) throws Exception{
         getConnection();
@@ -130,7 +129,6 @@ class Connect{
         }
         connection.close();
     }
-
 //    Method 5
     void manageStock(String bloodGroup,int units,char choice) throws Exception{
         getConnection();
@@ -152,8 +150,30 @@ class Connect{
             preparedStatement.executeUpdate();
             System.out.println("Blood removed from stock");
         }
-
         connection.close();
+    }
+//    Method 6
+    void searchByBloodGroup(String bloodGroup) throws Exception{
+        getConnection();
+        int count = 1;
+        boolean found = false;
+        String query = "Select * from donors where blood_group=? and status=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1,bloodGroup);
+        preparedStatement.setString(2,"emergency");
+        ResultSet rs = preparedStatement.executeQuery();
+        while(rs.next()){
+            found = true;
+            System.out.printf("Donor number: %d\n",count);
+            System.out.printf("Donor id: %d | Name: %s | Father Name: %s | Contact: %s | City: %s\n",
+                    rs.getInt("donor_id"),rs.getString("name"),rs.getString("father_name"),
+                    rs.getString("phone_number"),rs.getString("city"));
+
+            count++;
+        }
+        if(!found){
+            System.out.printf("Sorry!!!, No donor found for %s blood group",bloodGroup);
+        }
     }
 
 }
@@ -163,12 +183,15 @@ class Main{
         String name,fatherName,contact;
         Scanner scan = new Scanner(System.in);
         System.out.println("Blood Bank Menu");
-        System.out.println("==================");
+        System.out.println("==================");;
         System.out.println("1. Add Donor");
         System.out.println("2. Search Donor Id");
         System.out.println("3. Record Donation");
         System.out.println("4. Show History of a Donor");
         System.out.println("5. Manage Blood Bank Stock");
+        System.out.println("\nFor users");
+        System.out.println("----------");
+        System.out.println("6. Search donor by blood group");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -242,7 +265,12 @@ class Main{
                 System.out.print("Enter units of blood: ");
                 units = scan.nextInt();
                 connect.manageStock(bloodGroup,units,ch);
+            case 6:
+                System.out.print("Enter blood group you want to search: ");
+                String bg = scan.nextLine();
+                connect.searchByBloodGroup(bg);
         }
+
 
 }
 }
