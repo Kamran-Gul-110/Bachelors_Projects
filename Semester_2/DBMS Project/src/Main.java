@@ -52,8 +52,7 @@ class Connect{
         preparedStatement.setString(4,donor.contact);
         preparedStatement.setString(5,donor.city);
         preparedStatement.executeUpdate();
-
-        System.out.println("donor added");
+        System.out.println("Donor added with id: "+getDonorId(donor.name,donor.fatherName));
         connection.close();
     }
 //    Method 2
@@ -112,6 +111,8 @@ class Connect{
         System.out.println("Donation recorded");
         connection.close();
     }
+
+//    Method 4
     void showHistory(int donorId) throws Exception{
         getConnection();
         boolean found = false;
@@ -129,6 +130,8 @@ class Connect{
         }
         connection.close();
     }
+
+//    Method 5
     void manageStock(String bloodGroup,int units,char choice) throws Exception{
         getConnection();
         PreparedStatement preparedStatement;
@@ -163,7 +166,7 @@ class Main{
         System.out.println("==================");
         System.out.println("1. Add Donor");
         System.out.println("2. Search Donor Id");
-        System.out.println("3. Record Dontaion");
+        System.out.println("3. Record Donation");
         System.out.println("4. Show History of a Donor");
         System.out.println("5. Manage Blood Bank Stock");
         System.out.print("Enter your choice: ");
@@ -186,6 +189,15 @@ class Main{
                 String city = scan.nextLine();
                 Donor donor = new Donor(name,fatherName,contact,age,bloodGroup,city);
                 connect.addDonor(donor);
+                System.out.print("Wants to donate blood right now?(y/n) ");
+                choice = scan.next().toLowerCase().charAt(0);
+                if(choice=='y'){
+                    System.out.print("Enter Donor id: ");
+                    int donorId = scan.nextInt();
+                    System.out.print("Units donated: ");
+                    int units = scan.nextInt();
+                    connect.recordDonation(donorId,units);
+                }
                 break;
             case 2:
                 System.out.print("Enter Donor Name: ");
