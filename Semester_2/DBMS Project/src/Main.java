@@ -217,8 +217,9 @@ class Main{
         System.out.println("5. Manage Blood Bank Stock");
         System.out.println("\nFor users");
         System.out.println("----------");
-        System.out.println("6. Search donor by blood group");
-        System.out.println("7. Search donor by City");
+        System.out.println("6. Register yourself as a donor");
+        System.out.println("7. Search donor by blood group");
+        System.out.println("8. Search donor by City");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -294,17 +295,37 @@ class Main{
                 connect.manageStock(bloodGroup,units,ch);
                 break;
             case 6:
+                System.out.print("Donor name: ");
+                name = scan.nextLine();
+                System.out.print("Father name: ");
+                fatherName = scan.nextLine();
+                System.out.print("Contact: ");
+                contact = scan.nextLine();
+                System.out.print("Age of Donor: ");
+                age = scan.nextInt();
+                if(age>=18) {
+                    scan.nextLine();
+                    System.out.print("Blood Group: ");
+                    bloodGroup = scan.nextLine();
+                    System.out.print("City: ");
+                    city = scan.nextLine();
+                    donor = new Donor(name, fatherName, contact, age, bloodGroup, city);
+                    connect.addDonor(donor);
+                }
+                else{
+                    System.out.println("You are under 18, cannot donate blood now\nWe appreciate your courage and dedication");
+                }
+                break;
+            case 7:
                 System.out.print("Enter blood group you want to search: ");
                 String bg = scan.nextLine();
                 connect.searchByBloodGroup(bg);
                 break;
-            case 7:
+            case 8:
                 System.out.print("Enter city you want to search for donors in: ");
                 city = scan.nextLine();
                 connect.searchByCity(city);
                 break;
         }
-
-
 }
 }
