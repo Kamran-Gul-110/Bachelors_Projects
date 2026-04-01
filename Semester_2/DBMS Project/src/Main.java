@@ -34,55 +34,59 @@ class Donor extends Person{
     this.city = city;
     }
 }
-class Connect{
+class Connect {
     Connection connection;
+
     public void getConnection() throws Exception {
         String url = "jdbc:mysql://localhost:3306/blood_bank";
         String user = "root";
         String pass = "Kami@123";
-        connection= DriverManager.getConnection(url, user, pass);
+        connection = DriverManager.getConnection(url, user, pass);
     }
-//    Method 1
-    void addDonor(Donor donor) throws Exception{
+
+    //    Method 1
+    void addDonor(Donor donor) throws Exception {
         getConnection();
-        String query="INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
+        String query = "INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1,donor.name);
-        preparedStatement.setString(2,donor.fatherName);
-        preparedStatement.setString(3,donor.bloodGroup);
-        preparedStatement.setString(4,donor.contact);
-        preparedStatement.setString(5,donor.city);
+        preparedStatement.setString(1, donor.name);
+        preparedStatement.setString(2, donor.fatherName);
+        preparedStatement.setString(3, donor.bloodGroup);
+        preparedStatement.setString(4, donor.contact);
+        preparedStatement.setString(5, donor.city);
         preparedStatement.executeUpdate();
-        System.out.println("Donor added with id: "+getDonorId(donor.name,donor.fatherName));
+        System.out.println("Donor added with id: " + getDonorId(donor.name, donor.fatherName));
         connection.close();
     }
-//    Method 2
+
+    //    Method 2
     int getDonorId(String name, String fatherName) throws Exception {
-    getConnection();
-    int id = -1; // -1 means "Not Found"
-    String query = "SELECT donor_id FROM donors WHERE name = ? AND father_name = ?";
+        getConnection();
+        int id = -1; // -1 means "Not Found"
+        String query = "SELECT donor_id FROM donors WHERE name = ? AND father_name = ?";
 
-    PreparedStatement preparedStatement = connection.prepareStatement(query);
-    preparedStatement.setString(1, name);
-    preparedStatement.setString(2, fatherName);
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, name);
+        preparedStatement.setString(2, fatherName);
 
-    ResultSet rs = preparedStatement.executeQuery();
-    if (rs.next()) {
-        id = rs.getInt("donor_id");
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) {
+            id = rs.getInt("donor_id");
+        }
+        connection.close();
+        return id;
     }
-    connection.close();
-    return id;
-}
-//    Method 3
-    void recordDonation(int donorId,int units) throws Exception{
+
+    //    Method 3
+    void recordDonation(int donorId, int units) throws Exception {
         getConnection();
         String bloodGroup = "";
 
 //      The query will insert the units donated into the donations table
         String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1,donorId);
-        preparedStatement.setInt(2,units);
+        preparedStatement.setInt(1, donorId);
+        preparedStatement.setInt(2, units);
         preparedStatement.executeUpdate();
 
 //        The query2 will find the blood group of that donor later used to insert the stock in that group
@@ -97,85 +101,107 @@ class Connect{
 //        The query3 is actually inserting the units in blood_stock
         String query3 = "UPDATE blood_stock set total_units = total_units+? where blood_group = ?";
         PreparedStatement preparedStatement3 = connection.prepareStatement(query3);
-        preparedStatement3.setInt(1,units);
-        preparedStatement3.setString(2,bloodGroup);
+        preparedStatement3.setInt(1, units);
+        preparedStatement3.setString(2, bloodGroup);
         preparedStatement3.executeUpdate();
 
 
 //        As the donor has donated so query4 will change the status of donor to instant
         String query4 = "UPDATE donors set status = 'instant' where donor_id = ?";
         PreparedStatement preparedStatement4 = connection.prepareStatement(query4);
-        preparedStatement4.setInt(1,donorId);
+        preparedStatement4.setInt(1, donorId);
         preparedStatement4.executeUpdate();
 
         System.out.println("Donation recorded");
         connection.close();
     }
-//    Method 4
-    void showHistory(int donorId) throws Exception{
+
+    //    Method 4
+    void showHistory(int donorId) throws Exception {
         getConnection();
         boolean found = false;
         String query = "Select * from donations where donor_id=?";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1,donorId);
+        preparedStatement.setInt(1, donorId);
         ResultSet rs = preparedStatement.executeQuery();
-        while(rs.next()){
+        while (rs.next()) {
             found = true;
-            System.out.print("Units donated: " + rs.getInt("units_donated") +"   ");
+            System.out.print("Units donated: " + rs.getInt("units_donated") + "   ");
             System.out.println("Date: " + rs.getDate("donation_date"));
         }
-        if(!found){
+        if (!found) {
             System.out.println("No donation from this donor yet...");
         }
         connection.close();
     }
-//    Method 5
-    void manageStock(String bloodGroup,int units,char choice) throws Exception{
+
+    //    Method 5
+    void manageStock(String bloodGroup, int units, char choice) throws Exception {
         getConnection();
         PreparedStatement preparedStatement;
         String query;
-        if(choice=='a' || choice=='A'){
+        if (choice == 'a' || choice == 'A') {
             query = "UPDATE blood_stock set total_units = total_units+? where blood_group=?";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1,units);
-            preparedStatement.setString(2,bloodGroup);
+            preparedStatement.setInt(1, units);
+            preparedStatement.setString(2, bloodGroup);
             preparedStatement.executeUpdate();
             System.out.println("Blood added to stock");
-        }
-        else{
+        } else {
             query = "UPDATE blood_stock set total_units = total_units-? where blood_group=?";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1,units);
-            preparedStatement.setString(2,bloodGroup);
+            preparedStatement.setInt(1, units);
+            preparedStatement.setString(2, bloodGroup);
             preparedStatement.executeUpdate();
             System.out.println("Blood removed from stock");
         }
         connection.close();
     }
-//    Method 6
-    void searchByBloodGroup(String bloodGroup) throws Exception{
+
+    //    Method 6
+    void searchByBloodGroup(String bloodGroup) throws Exception {
         getConnection();
         int count = 1;
         boolean found = false;
         String query = "Select * from donors where blood_group=? and status=?";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1,bloodGroup);
-        preparedStatement.setString(2,"emergency");
+        preparedStatement.setString(1, bloodGroup);
+        preparedStatement.setString(2, "emergency");
         ResultSet rs = preparedStatement.executeQuery();
-        while(rs.next()){
+        while (rs.next()) {
             found = true;
-            System.out.printf("Donor number: %d\n",count);
+            System.out.printf("Donor number: %d\n", count);
             System.out.printf("Donor id: %d | Name: %s | Father Name: %s | Contact: %s | City: %s\n",
-                    rs.getInt("donor_id"),rs.getString("name"),rs.getString("father_name"),
-                    rs.getString("phone_number"),rs.getString("city"));
+                    rs.getInt("donor_id"), rs.getString("name"), rs.getString("father_name"),
+                    rs.getString("phone_number"), rs.getString("city"));
 
             count++;
         }
-        if(!found){
-            System.out.printf("Sorry!!!, No donor found for %s blood group",bloodGroup);
+        if (!found) {
+            System.out.printf("Sorry!!!, No donor found for %s blood group", bloodGroup);
         }
     }
 
+    //    Method 7
+    void searchByCity(String city) throws Exception {
+        boolean found = false;
+        getConnection();
+        String query = "Select * from donors where city=? and status=?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, city);
+        preparedStatement.setString(2, "emergency");
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            found = true;
+            System.out.printf("Donor id: %d | Name: %s | Father Name: %s | Contact: %s | Blood Group: %s\n",
+                    rs.getInt("donor_id"), rs.getString("name"), rs.getString("father_name"),
+                    rs.getString("phone_number"), rs.getString("blood_group"));
+
+        }
+        if (!found) {
+            System.out.printf("Sorry!!!, No donor found in %s City", city);
+        }
+    }
 }
 class Main{
     public static void main(String[] args) throws Exception {
@@ -192,6 +218,7 @@ class Main{
         System.out.println("\nFor users");
         System.out.println("----------");
         System.out.println("6. Search donor by blood group");
+        System.out.println("7. Search donor by City");
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -265,10 +292,17 @@ class Main{
                 System.out.print("Enter units of blood: ");
                 units = scan.nextInt();
                 connect.manageStock(bloodGroup,units,ch);
+                break;
             case 6:
                 System.out.print("Enter blood group you want to search: ");
                 String bg = scan.nextLine();
                 connect.searchByBloodGroup(bg);
+                break;
+            case 7:
+                System.out.print("Enter city you want to search for donors in: ");
+                city = scan.nextLine();
+                connect.searchByCity(city);
+                break;
         }
 
 
