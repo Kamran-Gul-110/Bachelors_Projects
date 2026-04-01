@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.Scanner;
 
 class Person{
@@ -137,23 +134,23 @@ class Connect {
 
     //    Method 5
     void manageStock(String bloodGroup, int units, char choice) throws Exception {
-        getConnection();
-        PreparedStatement preparedStatement;
-        String query;
-        if (choice == 'a' || choice == 'A') {
-            query = "UPDATE blood_stock set total_units = total_units+? where blood_group=?";
+        try {
+            getConnection();
+            PreparedStatement preparedStatement;
+            String query;
+            if (choice == 'a') {
+                query = "UPDATE blood_stock set total_units = total_units+? where blood_group=?";
+            } else {
+                query = "UPDATE blood_stock set total_units = total_units-? where blood_group=?";
+            }
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, units);
             preparedStatement.setString(2, bloodGroup);
             preparedStatement.executeUpdate();
-            System.out.println("Blood added to stock");
-        } else {
-            query = "UPDATE blood_stock set total_units = total_units-? where blood_group=?";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, units);
-            preparedStatement.setString(2, bloodGroup);
-            preparedStatement.executeUpdate();
-            System.out.println("Blood removed from stock");
+            System.out.println("Operation Successful");
+        }catch (SQLException e){
+            System.out.println("No enough quantity\nTry contacting willing donors");
+            searchByBloodGroup(bloodGroup);
         }
         connection.close();
     }
@@ -203,7 +200,8 @@ class Connect {
         }
     }
 }
-class Main{
+
+    class Main{
     public static void main(String[] args) throws Exception {
         Connect connect = new Connect();
         String name,fatherName,contact;
@@ -286,7 +284,7 @@ class Main{
                 connect.showHistory(donorId);
                 break;
             case 5:
-                System.out.print("Add to stock or remove: (a/r)");
+                System.out.print("Add to stock or remove: (a/r) ");
                 char ch = scan.next().charAt(0);
                 System.out.print("Enter blood group: ");
                 bloodGroup = scan.next();
