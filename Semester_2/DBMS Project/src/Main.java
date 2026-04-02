@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.Scanner;
+import java.time.LocalDate;
 
 class Person{
     String name;
@@ -74,42 +75,70 @@ class Connect {
         return id;
     }
 
+    boolean validateDonorTime(int donorId) throws Exception{
+        getConnection();
+        int year = 0,year2=0;
+        int month=0,month2=0;
+        int days=0,days2=0;
+        String query = "Select year(max(donation_date)) as year,month(max(donation_date)) as month,day(max(donation_date)) as day from donations where donor_id =?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1,donorId);
+        ResultSet rs = preparedStatement.executeQuery();
+        while(rs.next()){
+            year = rs.getInt("year");
+            month = rs.getInt("month");
+            days = rs.getInt("day");
+         }
+        int total1 = (year * 12 ) + (month*30) + days;
+        Statement statement = connection.createStatement();
+        ResultSet rs2 = statement.executeQuery("Select year(current_date) as year, month(current_date) as month,day(current_date) as day");
+        while(rs2.next()){
+            year2 = rs2.getInt("year");
+            month2 = rs2.getInt("month");
+            days2 = rs2.getInt("day");
+        }
+        int total2 = (year2 * 12 ) + (month2*30) + days2;
+        connection.close();
+        if((total2 - total1) > 90) {return true;}
+        else {return false;}
+    }
     //    Method 3
     void recordDonation(int donorId, int units) throws Exception {
         getConnection();
         String bloodGroup = "";
 
 //      The query will insert the units donated into the donations table
-        String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setInt(1, donorId);
-        preparedStatement.setInt(2, units);
-        preparedStatement.executeUpdate();
+            String query = "INSERT into donations(donor_id,units_donated) values(?,?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, donorId);
+            preparedStatement.setInt(2, units);
+            preparedStatement.executeUpdate();
 
 //        The query2 will find the blood group of that donor later used to insert the stock in that group
-        String query2 = "SELECT blood_group FROM donors WHERE donor_id = ?";
-        PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
-        preparedStatement2.setInt(1, donorId);
-        ResultSet rs = preparedStatement2.executeQuery();
-        if (rs.next()) {
-            bloodGroup = rs.getString("blood_group");
-        }
+            String query2 = "SELECT blood_group FROM donors WHERE donor_id = ?";
+            PreparedStatement preparedStatement2 = connection.prepareStatement(query2);
+            preparedStatement2.setInt(1, donorId);
+            ResultSet rs = preparedStatement2.executeQuery();
+            if (rs.next()) {
+                bloodGroup = rs.getString("blood_group");
+            }
 
 //        The query3 is actually inserting the units in blood_stock
-        String query3 = "UPDATE blood_stock set total_units = total_units+? where blood_group = ?";
-        PreparedStatement preparedStatement3 = connection.prepareStatement(query3);
-        preparedStatement3.setInt(1, units);
-        preparedStatement3.setString(2, bloodGroup);
-        preparedStatement3.executeUpdate();
+            String query3 = "UPDATE blood_stock set total_units = total_units+? where blood_group = ?";
+            PreparedStatement preparedStatement3 = connection.prepareStatement(query3);
+            preparedStatement3.setInt(1, units);
+            preparedStatement3.setString(2, bloodGroup);
+            preparedStatement3.executeUpdate();
 
 
 //        As the donor has donated so query4 will change the status of donor to instant
-        String query4 = "UPDATE donors set status = 'instant' where donor_id = ?";
-        PreparedStatement preparedStatement4 = connection.prepareStatement(query4);
-        preparedStatement4.setInt(1, donorId);
-        preparedStatement4.executeUpdate();
+            String query4 = "UPDATE donors set status = 'instant' where donor_id = ?";
+            PreparedStatement preparedStatement4 = connection.prepareStatement(query4);
+            preparedStatement4.setInt(1, donorId);
+            preparedStatement4.executeUpdate();
 
-        System.out.println("Donation recorded");
+            System.out.println("Donation recorded");
+
         connection.close();
     }
 
@@ -218,6 +247,7 @@ class Connect {
         System.out.println("6. Register yourself as a donor");
         System.out.println("7. Search donor by blood group");
         System.out.println("8. Search donor by City");
+        System.out.println(connect.validateDonorTime(2));
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
         scan.nextLine();
@@ -263,9 +293,13 @@ class Connect {
                     if(choice=='y' || choice=='Y'){
                         System.out.print("Enter Donor id: ");
                         int donorId = scan.nextInt();
-                        System.out.print("Units donated: ");
-                        int units = scan.nextInt();
-                        connect.recordDonation(donorId,units);
+                        if(connect.validateDonorTime(donorId)) {
+                            System.out.print("Units donated: ");
+                            int units = scan.nextInt();
+                            connect.recordDonation(donorId, units);
+                        }
+                        else
+                            System.out.println("Cannot donate again before 90 days gap");
                     }
                 } else {
                     System.out.println("[Error] Donor not found in registry.");
@@ -274,9 +308,13 @@ class Connect {
             case 3:
                 System.out.print("Enter Donor id: ");
                 int donorId = scan.nextInt();
-                System.out.print("Units donated: ");
-                int units = scan.nextInt();
-                connect.recordDonation(donorId,units);
+                if(connect.validateDonorTime(donorId)) {
+                    System.out.print("Units donated: ");
+                    int units = scan.nextInt();
+                    connect.recordDonation(donorId, units);
+                }
+                else
+                    System.out.println("Cannot donate again before 90 days gap");
                 break;
             case 4:
                 System.out.print("Enter donor id: ");
@@ -289,7 +327,7 @@ class Connect {
                 System.out.print("Enter blood group: ");
                 bloodGroup = scan.next();
                 System.out.print("Enter units of blood: ");
-                units = scan.nextInt();
+                int units = scan.nextInt();
                 connect.manageStock(bloodGroup,units,ch);
                 break;
             case 6:
