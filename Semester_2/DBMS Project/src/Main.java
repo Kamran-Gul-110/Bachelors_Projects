@@ -288,9 +288,9 @@ class Connect {
 
                 if (foundId != -1) {
                     System.out.println("ID Found: " + foundId);
-                    System.out.println("Record donation now? (y/n)");
-                    choice =scan.next().charAt(0);
-                    if(choice=='y' || choice=='Y'){
+                    System.out.println("Record donation now? (y/n) ");
+                    choice =scan.next().toLowerCase().charAt(0);
+                    if(choice=='y'){
                         System.out.print("Enter Donor id: ");
                         int donorId = scan.nextInt();
                         if(connect.validateDonorTime(donorId)) {
@@ -323,7 +323,7 @@ class Connect {
                 break;
             case 5:
                 System.out.print("Add to stock or remove: (a/r) ");
-                char ch = scan.next().charAt(0);
+                char ch = scan.next().toLowerCase().charAt(0);
                 System.out.print("Enter blood group: ");
                 bloodGroup = scan.next();
                 System.out.print("Enter units of blood: ");
