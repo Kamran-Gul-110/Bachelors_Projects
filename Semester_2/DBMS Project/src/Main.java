@@ -46,7 +46,29 @@ class Connect {
         }
 
     }
-
+    //    Method to validate admin login
+    boolean validateAdmin(String adminId, String adminPassword){
+        try{
+            getConnection();
+            boolean validAdmin = false;
+            String query = "select admin_id,admin_password from admins where admin_id = ? and admin_password = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, adminId);
+            preparedStatement.setString(2, adminPassword);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                String id = resultSet.getString("admin_id");
+                String pass = resultSet.getString("admin_password");
+                if(id.equals(adminId) && pass.equals(adminPassword)){
+                    validAdmin = true;
+                }
+            }
+            return validAdmin;
+        }catch (Exception e){
+            System.out.println("Connection Failed! validateAdmin");
+        }
+        return false;
+    }
     //    Method 1
     void addDonor(Donor donor) {
         try {
@@ -284,13 +306,24 @@ class Connect {
 
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
+        scan.nextLine();
 
         if(choice==1) {
-            System.out.println("1. Add Donor");
-            System.out.println("2. Search Donor Id");
-            System.out.println("3. Record Donation");
-            System.out.println("4. Show History of a Donor");
-            System.out.println("5. Manage Blood Bank Stock");
+            System.out.print("Please enter your admin id: ");
+            String adminId = scan.nextLine();
+            System.out.print("Please enter your admin password: ");
+            String adminPassword = scan.nextLine();
+            if (connect.validateAdmin(adminId, adminPassword)) {
+                System.out.println("1. Add Donor");
+                System.out.println("2. Search Donor Id");
+                System.out.println("3. Record Donation");
+                System.out.println("4. Show History of a Donor");
+                System.out.println("5. Manage Blood Bank Stock");
+            }
+            else {
+                System.out.println("No such admin found....");
+                return;
+            }
         }
         else if(choice==2) {
             System.out.println("6. Register yourself as a donor");
