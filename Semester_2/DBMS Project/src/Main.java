@@ -57,11 +57,7 @@ class Connect {
             preparedStatement.setString(2, adminPassword);
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
-                String id = resultSet.getString("admin_id");
-                String pass = resultSet.getString("admin_password");
-                if(id.equals(adminId) && pass.equals(adminPassword)){
-                    validAdmin = true;
-                }
+                validAdmin = true;
             }
             return validAdmin;
         }catch (Exception e){
@@ -319,6 +315,88 @@ class Connect {
                 System.out.println("3. Record Donation");
                 System.out.println("4. Show History of a Donor");
                 System.out.println("5. Manage Blood Bank Stock");
+
+                System.out.print("Enter your choice: ");
+                choice = scan.nextInt();
+                scan.nextLine();
+                switch (choice) {
+                    case 1:
+                        System.out.print("Donor name: ");
+                        name = scan.nextLine();
+                        System.out.print("Father name: ");
+                        fatherName = scan.nextLine();
+                        System.out.print("Contact: ");
+                        contact = scan.nextLine();
+                        System.out.print("Age of Donor: ");
+                        int age = scan.nextInt();
+                        scan.nextLine();
+                        System.out.print("Blood Group: ");
+                        String bloodGroup = scan.nextLine();
+                        System.out.print("City: ");
+                        String city = scan.nextLine();
+                        Donor donor = new Donor(name, fatherName, contact, age, bloodGroup, city);
+                        connect.addDonor(donor);
+                        System.out.print("Wants to donate blood right now?(y/n) ");
+                        choice = scan.next().toLowerCase().charAt(0);
+                        if (choice == 'y') {
+                            System.out.print("Enter Donor id: ");
+                            int donorId = scan.nextInt();
+                            System.out.print("Units donated: ");
+                            int units = scan.nextInt();
+                            connect.recordDonation(donorId, units);
+                        }
+                        break;
+                    case 2:
+                        System.out.print("Enter Donor Name: ");
+                        String sName = scan.nextLine();
+                        System.out.print("Enter Father's Name: ");
+                        String sFather = scan.nextLine();
+
+                        int foundId = connect.getDonorId(sName, sFather);
+
+                        if (foundId != -1) {
+                            System.out.println("ID Found: " + foundId);
+                            System.out.println("Record donation now? (y/n) ");
+                            choice = scan.next().toLowerCase().charAt(0);
+                            if (choice == 'y') {
+                                System.out.print("Enter Donor id: ");
+                                int donorId = scan.nextInt();
+                                if (connect.validateDonorTime(donorId)) {
+                                    System.out.print("Units donated: ");
+                                    int units = scan.nextInt();
+                                    connect.recordDonation(donorId, units);
+                                } else
+                                    System.out.println("Cannot donate again before 90 days gap");
+                            }
+                        } else {
+                            System.out.println("[Error] Donor not found in registry.");
+                        }
+                        break;
+                    case 3:
+                        System.out.print("Enter Donor id: ");
+                        int donorId = scan.nextInt();
+                        if (connect.validateDonorTime(donorId)) {
+                            System.out.print("Units donated: ");
+                            int units = scan.nextInt();
+                            connect.recordDonation(donorId, units);
+                        } else
+                            System.out.println("Cannot donate again before 90 days gap");
+                        break;
+                    case 4:
+                        System.out.print("Enter donor id: ");
+                        donorId = scan.nextInt();
+                        connect.showHistory(donorId);
+                        break;
+                    case 5:
+                        System.out.print("Add to stock or remove: (a/r) ");
+                        char ch = scan.next().toLowerCase().charAt(0);
+                        System.out.print("Enter blood group: ");
+                        bloodGroup = scan.next();
+                        System.out.print("Enter units of blood: ");
+                        int units = scan.nextInt();
+                        connect.manageStock(bloodGroup,units,ch);
+                        break;
+                }
             }
             else {
                 System.out.println("No such admin found....");
@@ -329,11 +407,11 @@ class Connect {
             System.out.println("6. Register yourself as a donor");
             System.out.println("7. Search donor by blood group");
             System.out.println("8. Search donor by City");
-        }
-        System.out.print("Enter your choice: ");
-        choice = scan.nextInt();
-        scan.nextLine();
-        switch(choice){
+
+            System.out.print("Enter your choice: ");
+            choice = scan.nextInt();
+            scan.nextLine();
+            switch (choice) {
             case 1:
                 System.out.print("Donor name: ");
                 name = scan.nextLine();
@@ -343,107 +421,33 @@ class Connect {
                 contact = scan.nextLine();
                 System.out.print("Age of Donor: ");
                 int age = scan.nextInt();
-                scan.nextLine();
-                System.out.print("Blood Group: ");
-                String bloodGroup = scan.nextLine();
-                System.out.print("City: ");
-                String city = scan.nextLine();
-                Donor donor = new Donor(name,fatherName,contact,age,bloodGroup,city);
-                connect.addDonor(donor);
-                System.out.print("Wants to donate blood right now?(y/n) ");
-                choice = scan.next().toLowerCase().charAt(0);
-                if(choice=='y'){
-                    System.out.print("Enter Donor id: ");
-                    int donorId = scan.nextInt();
-                    System.out.print("Units donated: ");
-                    int units = scan.nextInt();
-                    connect.recordDonation(donorId,units);
-                }
-                break;
-            case 2:
-                System.out.print("Enter Donor Name: ");
-                String sName = scan.nextLine();
-                System.out.print("Enter Father's Name: ");
-                String sFather = scan.nextLine();
-
-                int foundId = connect.getDonorId(sName, sFather);
-
-                if (foundId != -1) {
-                    System.out.println("ID Found: " + foundId);
-                    System.out.println("Record donation now? (y/n) ");
-                    choice =scan.next().toLowerCase().charAt(0);
-                    if(choice=='y'){
-                        System.out.print("Enter Donor id: ");
-                        int donorId = scan.nextInt();
-                        if(connect.validateDonorTime(donorId)) {
-                            System.out.print("Units donated: ");
-                            int units = scan.nextInt();
-                            connect.recordDonation(donorId, units);
-                        }
-                        else
-                            System.out.println("Cannot donate again before 90 days gap");
-                    }
-                } else {
-                    System.out.println("[Error] Donor not found in registry.");
-                }
-                break;
-            case 3:
-                System.out.print("Enter Donor id: ");
-                int donorId = scan.nextInt();
-                if(connect.validateDonorTime(donorId)) {
-                    System.out.print("Units donated: ");
-                    int units = scan.nextInt();
-                    connect.recordDonation(donorId, units);
-                }
-                else
-                    System.out.println("Cannot donate again before 90 days gap");
-                break;
-            case 4:
-                System.out.print("Enter donor id: ");
-                donorId = scan.nextInt();
-                connect.showHistory(donorId);
-                break;
-            case 5:
-                System.out.print("Add to stock or remove: (a/r) ");
-                char ch = scan.next().toLowerCase().charAt(0);
-                System.out.print("Enter blood group: ");
-                bloodGroup = scan.next();
-                System.out.print("Enter units of blood: ");
-                int units = scan.nextInt();
-                connect.manageStock(bloodGroup,units,ch);
-                break;
-            case 6:
-                System.out.print("Donor name: ");
-                name = scan.nextLine();
-                System.out.print("Father name: ");
-                fatherName = scan.nextLine();
-                System.out.print("Contact: ");
-                contact = scan.nextLine();
-                System.out.print("Age of Donor: ");
-                age = scan.nextInt();
                 if(age>=18) {
                     scan.nextLine();
                     System.out.print("Blood Group: ");
-                    bloodGroup = scan.nextLine();
+                    String bloodGroup = scan.nextLine();
                     System.out.print("City: ");
-                    city = scan.nextLine();
-                    donor = new Donor(name, fatherName, contact, age, bloodGroup, city);
+                    String city = scan.nextLine();
+                    Donor donor = new Donor(name, fatherName, contact, age, bloodGroup, city);
                     connect.addDonor(donor);
                 }
                 else{
                     System.out.println("You are under 18, cannot donate blood now\nWe appreciate your courage and dedication");
                 }
                 break;
-            case 7:
+            case 2:
                 System.out.print("Enter blood group you want to search: ");
                 String bg = scan.nextLine();
                 connect.searchByBloodGroup(bg);
                 break;
-            case 8:
+            case 3:
                 System.out.print("Enter city you want to search for donors in: ");
-                city = scan.nextLine();
+                String city = scan.nextLine();
                 connect.searchByCity(city);
                 break;
+        }
+        }
+        else{
+            System.out.println("Invalid choice");
         }
 }
 }
