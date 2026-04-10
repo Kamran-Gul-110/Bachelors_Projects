@@ -278,19 +278,27 @@ class Connect {
         String name,fatherName,contact;
         Scanner scan = new Scanner(System.in);
         System.out.println("Blood Bank Menu");
-        System.out.println("==================");;
-        System.out.println("1. Add Donor");
-        System.out.println("2. Search Donor Id");
-        System.out.println("3. Record Donation");
-        System.out.println("4. Show History of a Donor");
-        System.out.println("5. Manage Blood Bank Stock");
-        System.out.println("\nFor users");
-        System.out.println("----------");
-        System.out.println("6. Register yourself as a donor");
-        System.out.println("7. Search donor by blood group");
-        System.out.println("8. Search donor by City");
+        System.out.println("==================");
+        System.out.println("1. Login as admin");
+        System.out.println("2. Continue as User");
+
         System.out.print("Enter your choice: ");
         int choice = scan.nextInt();
+
+        if(choice==1) {
+            System.out.println("1. Add Donor");
+            System.out.println("2. Search Donor Id");
+            System.out.println("3. Record Donation");
+            System.out.println("4. Show History of a Donor");
+            System.out.println("5. Manage Blood Bank Stock");
+        }
+        else if(choice==2) {
+            System.out.println("6. Register yourself as a donor");
+            System.out.println("7. Search donor by blood group");
+            System.out.println("8. Search donor by City");
+        }
+        System.out.print("Enter your choice: ");
+        choice = scan.nextInt();
         scan.nextLine();
         switch(choice){
             case 1:
