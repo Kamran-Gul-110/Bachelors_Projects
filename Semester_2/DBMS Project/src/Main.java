@@ -293,7 +293,7 @@ class Connect {
     }
 }
 
-    class Main {
+class Main {
         public static void main(String[] args) throws Exception {
             Connect connect = new Connect();
             String name, fatherName, contact;
@@ -367,12 +367,10 @@ class Connect {
                                         System.out.println("Record donation now? (y/n) ");
                                         choice = scan.next().toLowerCase().charAt(0);
                                         if (choice == 'y') {
-                                            System.out.print("Enter Donor id: ");
-                                            int donorId = scan.nextInt();
-                                            if (connect.validateDonorTime(donorId)) {
+                                            if (connect.validateDonorTime(foundId)) {
                                                 System.out.print("Units donated: ");
                                                 int units = scan.nextInt();
-                                                connect.recordDonation(donorId, units);
+                                                connect.recordDonation(foundId, units);
                                             } else
                                                 System.out.println("Cannot donate again before 90 days gap");
                                         }
