@@ -112,37 +112,40 @@ class Connect {
     boolean validateDonorTime(int donorId) {
         try {
             getConnection();
-            int year = 0, year2 = 0;
-            int month = 0, month2 = 0;
-            int days = 0, days2 = 0;
-            String query = "Select year(max(donation_date)) as year,month(max(donation_date)) as month,day(max(donation_date)) as day from donations where donor_id =?";
+
+            // 1. Get the most recent donation date for this ID
+            String query = "SELECT MAX(donation_date) AS last_date FROM donations WHERE donor_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, donorId);
+
             ResultSet rs = preparedStatement.executeQuery();
-            while (rs.next()) {
-                year = rs.getInt("year");
-                month = rs.getInt("month");
-                days = rs.getInt("day");
+
+            if (rs.next()) {
+                Date sqlDate = rs.getDate("last_date");
+
+                if (sqlDate != null) {
+                    LocalDate lastDonation = sqlDate.toLocalDate();
+                    LocalDate today = LocalDate.now();
+
+                    // 3. Epoch Day math (Safe for New Year transitions)
+                    long total1 = lastDonation.toEpochDay();
+                    long total2 = today.toEpochDay();
+                    long gap = total2 - total1;
+
+                    if (gap < 90) {
+                        System.out.println("Wait! It has only been " + gap + " days since the last donation.");
+                        connection.close();
+                        return false;
+                    }
+                }
             }
-            int total1 = (year * 12) + (month * 30) + days;
-            Statement statement = connection.createStatement();
-            ResultSet rs2 = statement.executeQuery("Select year(current_date) as year, month(current_date) as month,day(current_date) as day");
-            while (rs2.next()) {
-                year2 = rs2.getInt("year");
-                month2 = rs2.getInt("month");
-                days2 = rs2.getInt("day");
-            }
-            int total2 = (year2 * 12) + (month2 * 30) + days2;
+            // If no records found or gap is 90+ days
             connection.close();
-            if (Math.abs((total2 - total1)) > 90) {
-                return true;
-            } else {
-                return false;
-            }
+            return true;
         } catch (Exception e) {
-            System.out.println("Connection Failed! Check output console");
+            System.out.println("Connection Failed! validateDonorTime: " + e.getMessage());
+            return false;
         }
-        return false;
     }
     //    Method 3
     void recordDonation(int donorId, int units) {
