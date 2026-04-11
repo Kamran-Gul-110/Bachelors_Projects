@@ -33,23 +33,16 @@ class Donor extends Person{
     }
 }
 class Connect {
-    Connection connection;
 
-    public void getConnection() {
-        try {
+    public Connection getConnection() throws SQLException {
             String url = "jdbc:mysql://localhost:3306/blood_bank";
             String user = "root";
             String pass = "Kami@123";
-            connection = DriverManager.getConnection(url, user, pass);
-        }catch (Exception e){
-            System.out.println("Connection Failed! getConnection");
-        }
-
+            return DriverManager.getConnection(url, user, pass);
     }
     //    Method to validate admin login
     boolean validateAdmin(String adminId, String adminPassword){
-        try{
-            getConnection();
+        try(Connection connection =getConnection()){
             boolean validAdmin = false;
             String query = "select admin_id,admin_password from admins where admin_id = ? and admin_password = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -67,8 +60,7 @@ class Connect {
     }
     //    Method 1
     void addDonor(Donor donor) {
-        try {
-            getConnection();
+        try(Connection connection =getConnection()) {
             String query = "INSERT INTO donors(name,father_name,blood_group,phone_number,city) values(?,?,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, donor.name);
@@ -78,7 +70,6 @@ class Connect {
             preparedStatement.setString(5, donor.city);
             preparedStatement.executeUpdate();
             System.out.println("Donor added with id: " + getDonorId(donor.name, donor.fatherName));
-            connection.close();
         }catch (Exception e){
             System.out.println("Connection Failed! Check output console");
         }
@@ -87,8 +78,7 @@ class Connect {
 
     //    Method 2
     int getDonorId(String name, String fatherName) {
-        try {
-            getConnection();
+        try(Connection connection =getConnection()) {
             int id = -1; // -1 means "Not Found"
             String query = "SELECT donor_id FROM donors WHERE name = ? AND father_name = ?";
 
@@ -100,19 +90,15 @@ class Connect {
             if (rs.next()) {
                 id = rs.getInt("donor_id");
             }
-            connection.close();
             return id;
         }catch (Exception e){
             System.out.println("Connection Failed! Check output console");
         }
         return -1;
-
     }
 
     boolean validateDonorTime(int donorId) {
-        try {
-            getConnection();
-
+        try(Connection connection =getConnection()) {
             // 1. Get the most recent donation date for this ID
             String query = "SELECT MAX(donation_date) AS last_date FROM donations WHERE donor_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -134,13 +120,11 @@ class Connect {
 
                     if (gap < 90) {
                         System.out.println("Wait! It has only been " + gap + " days since the last donation.");
-                        connection.close();
                         return false;
                     }
                 }
             }
             // If no records found or gap is 90+ days
-            connection.close();
             return true;
         } catch (Exception e) {
             System.out.println("Connection Failed! validateDonorTime: " + e.getMessage());
@@ -149,8 +133,7 @@ class Connect {
     }
     //    Method 3
     void recordDonation(int donorId, int units) {
-        try {
-            getConnection();
+        try(Connection connection =getConnection()) {
             String bloodGroup = "";
 
 //      The query will insert the units donated into the donations table
@@ -184,8 +167,6 @@ class Connect {
             preparedStatement4.executeUpdate();
 
             System.out.println("Donation recorded");
-
-            connection.close();
         }catch (Exception e){
             System.out.println("Connection Failed! Check output console");
         }
@@ -193,8 +174,7 @@ class Connect {
 
     //    Method 4
     void showHistory(int donorId) {
-        try {
-            getConnection();
+        try(Connection connection =getConnection()) {
             boolean found = false;
             String query = "Select * from donations where donor_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -208,7 +188,6 @@ class Connect {
             if (!found) {
                 System.out.println("No donation from this donor yet...");
             }
-            connection.close();
         }catch (Exception e){
             System.out.println("Connection Failed! Check output console");
         }
@@ -217,8 +196,7 @@ class Connect {
     //    Method 5
     void manageStock(String bloodGroup, int units, char choice){
         try{
-        try {
-            getConnection();
+        try(Connection connection =getConnection()) {
             PreparedStatement preparedStatement;
             String query;
             if (choice == 'a') {
@@ -235,15 +213,13 @@ class Connect {
             System.out.println("No enough quantity\nTry contacting willing donors");
             searchByBloodGroup(bloodGroup);
         }
-        connection.close();
     } catch (Exception e) {
             throw new RuntimeException(e);
         }}
 
     //    Method 6
     void searchByBloodGroup(String bloodGroup){
-        try{
-        getConnection();
+        try(Connection connection =getConnection()){
         int count = 1;
         boolean found = false;
         String query = "Select * from donors where blood_group=? and status=?";
@@ -269,14 +245,14 @@ class Connect {
 
     //    Method 7
     void searchByCity(String city){
-        try{
-        boolean found = false;
-        getConnection();
-        String query = "Select * from donors where city=? and status=?";
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1, city);
-        preparedStatement.setString(2, "emergency");
-        ResultSet rs = preparedStatement.executeQuery();
+        try(Connection connection =getConnection()){
+            boolean found = false;
+
+            String query = "Select * from donors where city=? and status=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, city);
+            preparedStatement.setString(2, "emergency");
+            ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
             found = true;
             System.out.printf("Donor id: %d | Name: %s | Father Name: %s | Contact: %s | Blood Group: %s\n",
