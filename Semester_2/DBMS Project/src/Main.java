@@ -270,7 +270,7 @@ class Connect {
 }
 
 class Main {
-        public static void main(String[] args) throws Exception {
+        public static void main(String[] args) {
             Connect connect = new Connect();
             String name, fatherName, contact;
             Scanner scan = new Scanner(System.in);
@@ -391,8 +391,8 @@ class Main {
                     int userChoice =0;
                     while (userChoice != 5) {
                         System.out.println("1. Register yourself as a donor");
-                        System.out.println("2. Search donor by blood group");
-                        System.out.println("3. Search donor by City");
+                        System.out.println("2. Search donors by blood group");
+                        System.out.println("3. Search donors by City");
                         System.out.println("4. See your donation history");
                         System.out.println("5. Exit");
 
@@ -437,12 +437,12 @@ class Main {
                                 int donorId = scan.nextInt();
                                 connect.showHistory(donorId);
                                 break;
-                        }
+                            }
                         System.out.println("\n\n\n");
                     }
                     }else{
                         System.out.println("Invalid choice");
-                    }
                 }
             }
+        }
 }
