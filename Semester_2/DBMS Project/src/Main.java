@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.Scanner;
 import java.time.LocalDate;
 
-class Person{
+abstract class Person{
     String name;
     String fatherName;
     String contact;
